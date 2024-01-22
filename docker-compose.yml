@@ -1,0 +1,47 @@
+version: '3.1'
+
+services:
+  # PHP service
+  php:
+    build:
+      context: ./infra
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    networks:
+      - my_network
+
+  # MySQL service
+  mysql:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: pass1234
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - my_network
+
+  # phpMyAdmin service
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    restart: always
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: pass1234
+    ports:
+      - "8181:80"
+    depends_on:
+      - mysql
+    networks:
+      - my_network
+
+volumes:
+  mysql_data:
+
+networks:
+  my_network:
+    driver: bridge
